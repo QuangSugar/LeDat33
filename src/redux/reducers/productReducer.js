@@ -1,14 +1,56 @@
-import ACTIONS from '../actions/'
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { productApi } from "../../api/products/index";
 
-const product =[]
+const initialState = {
+  pending: false,
+  success: false,
+  failed: false,
+  message: "",
+  data: [],
+};
 
-const productReducer = (state = product, action) => {
-    switch(action.type){
-        case ACTIONS.GET_ALL_PRODUCT:
-            return action.payload
-        default:
-            return state
-    }
-}
+export const getProduct = createAsyncThunk("product", async () => {
+  const res = await productApi.getData();
+  return res.data.$values;
+});
+export const getProductById = createAsyncThunk(
+  "Get Product By Id",
+  async (params) => {
+    const res = await productApi.getProductById(params);
+    return res.data;
+  }
+);
 
-export default productReducer
+const products = createSlice({
+  name: "product",
+  initialState,
+  extraReducers: {
+    [getProduct.pending]: (state) => {
+      state.pending = true;
+      state.success = false;
+      state.failed = false;
+    },
+    [getProduct.fulfilled]: (state, action) => {
+      state.pending = false;
+      state.success = true;
+      state.data = action.payload;
+    },
+    [getProduct.rejected]: (state, action) => {
+      state.pending = false;
+      state.failed = true;
+      state.message = action.error.message;
+    },
+    [getProductById.fulfilled]: (state, action) => {
+      state.pending = false;
+      state.success = true;
+      state.data = action.payload;
+    },
+    [getProductById.rejected]: (state, action) => {
+      state.pending = false;
+      state.failed = true;
+      state.message = action.error.message;
+    },
+  },
+});
+
+export default products.reducer;

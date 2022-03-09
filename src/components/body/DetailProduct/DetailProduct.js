@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import React, { useEffect, useState } from "react";
+import Slider from "react-slick";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import RelatedProduct from "./RelatedProduct";
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
 import {
   getCartItems,
   removeCartItems,
   setCartItems,
 } from "../../../utils/storeSession";
-import Loading from "../../utils/Loading/Loading";
 import { fCurrency } from "../../utils/FormatCost";
-
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import Loading from "../../utils/Loading/Loading";
+import RelatedProduct from "./RelatedProduct";
 
 const DetailProduct = ({ match }) => {
   const [product, setProduct] = useState(null);
@@ -48,7 +47,8 @@ const DetailProduct = ({ match }) => {
   }, [match.params.id]);
 
   const handleAddToCart = () => {
-    const id = match.params.id;
+    const id = +match.params.id;
+    console.log(id);
     let price = 0;
     if (product.product.priceSale > 0) {
       price = product.product.priceSale;
@@ -56,8 +56,11 @@ const DetailProduct = ({ match }) => {
       price = product.product.price;
     }
     const cartItems = getCartItems();
+    console.log(cartItems);
     let indexItemInCart = cartItems.findIndex((item) => item.id === id);
+    console.log(indexItemInCart);
     if (indexItemInCart > -1) {
+      console.log("yes");
       cartItems.splice(indexItemInCart, 1, {
         id,
         amount: cartItems[indexItemInCart].amount + 1,
@@ -132,16 +135,14 @@ const DetailProduct = ({ match }) => {
                       product.image.$values.map((item, index) => {
                         return (
                           <>
-                          
-                              <img
-                                width={"100%"}
-                                src={
-                                  product &&
-                                  `https://localhost:44349/uploads/${product.image.$values[index]}`
-                                }
-                                alt="Image"
-                              />
-                          
+                            <img
+                              width={"100%"}
+                              src={
+                                product &&
+                                `https://localhost:44349/uploads/${product.image.$values[index]}`
+                              }
+                              alt="Image"
+                            />
                           </>
                         );
                       })}
@@ -200,7 +201,6 @@ const DetailProduct = ({ match }) => {
             </div>
           </div>
         </div>
-
       </div>
       <RelatedProduct
         categoryId={product && product.product.categoryId}
